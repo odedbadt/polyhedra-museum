@@ -329,23 +329,22 @@ function init_and_draw(model) {
 
   init_palette();
   const draw_pen_selector = () => {
-    pen_context.clearRect(0,0,600,200)
+    pen_context.clearRect(0,0,pen_canvas.width,pen_canvas.height)
     pen_context.fillStyle=pen_color
     pen_context.beginPath()
-    pen_context.moveTo(0,100)
-    pen_context.lineTo(250,100)
-    pen_context.lineTo(250,50)
-    pen_context.lineTo(0,100)
+    pen_context.moveTo(100,0)
+    pen_context.lineTo(100,250)
+    pen_context.lineTo(50,250)
+    pen_context.lineTo(100,0)
     pen_context.fill()
-    pen_context.ellipse(pen_radius*10,pen_radius+100, pen_radius, pen_radius, 0, 0, Math.PI*2)
+    pen_context.ellipse(pen_radius+100, pen_radius*10, pen_radius, pen_radius, 0, 0, Math.PI*2)
     pen_context.fill()
 }
   draw_pen_selector()
   pen_canvas.addEventListener("mousemove", (event) => {
     if (event.buttons) {
-      const pen_canvas_x = event.clientX - pen_canvas.getBoundingClientRect().left;
+      const pen_canvas_x = event.clientY - pen_canvas.getBoundingClientRect().top;
       pen_radius = pen_canvas_x/5/2
-      pen_context.beginPath()
       draw_pen_selector()
       pen_context.fillStyle=pen_color
 
