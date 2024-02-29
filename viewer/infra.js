@@ -277,7 +277,7 @@ function init_palette() {
   var img = new Image();
   img.src = "palette.png"; // Replace with the path to your image
   img.onload =  () => {
-    palette_context.drawImage(img, 0, 0, 25, 200, 0, 0, palette_canvas.height, palette_canvas.width);
+    palette_context.drawImage(img, 0, 0, 25, 200, 0, 0, palette_canvas.width, palette_canvas.height);
   }
 }
 
