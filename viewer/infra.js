@@ -6,7 +6,6 @@ in vec3 aNormalDirection;
 in vec2 aTextureCoord;
 in float aVectorIndex;
 out vec2 vTextureCoord;
-out float aSelection;
 out float vectorIndex;
 out float fBrightness;
 out vec4 oVertexColor;
@@ -16,7 +15,6 @@ uniform mat3 rotator;
 uniform mat4 projector;
 uniform mat4 view;
 
-uniform float selection;
 
 vec3 lightDirection = vec3(1.0,0.0,1.0);
 
@@ -29,7 +27,6 @@ void main(void) {
   oVertexColor = aVertexColor;
   vTextureCoord = aTextureCoord;
   vectorIndex = floor(float(gl_VertexID)/3.0);
-  aSelection = selection;
   fBrightness = (0.5 +1.8*dot(normalize(normal_after_rotation), normalize(lightDirection))*0.2);
 }
 `
@@ -38,7 +35,6 @@ precision mediump float;
 in vec2 vTextureCoord;
 in float fBrightness;
 in float vectorIndex;
-in float aSelection;
 in vec4 oVertexColor;
 
 out vec4 fragColor;
@@ -58,7 +54,6 @@ in vec2 vTextureCoord;
 in float fBrightness;
 uniform sampler2D uTexture;
 in float vectorIndex;
-in float aSelection;
 
 out vec4 fragColor;
 
@@ -282,7 +277,7 @@ function init_palette() {
   var img = new Image();
   img.src = "palette.png"; // Replace with the path to your image
   img.onload =  () => {
-    palette_context.drawImage(img, 0, 0, 25, 200, 0, 0, 100, 300);
+    palette_context.drawImage(img, 0, 0, 25, 200, 0, 0, palette_canvas.height, palette_canvas.width);
   }
 }
 
@@ -309,9 +304,6 @@ function init_and_draw(model) {
   const pen_canvas = document.getElementById("penCanvas");  
   const pen_context = pen_canvas.getContext('2d', { willReadFrequently: true });
   const main_canvas = document.getElementById("mainCanvas");  
-  const feedback_canvas = document.getElementById("feedbackCanvas");
-  const overlay_canvas = document.getElementById("overlayCanvas");
-  const overlay_context = overlay_canvas.getContext("2d");
   const main_gl = main_canvas.getContext("webgl2");
   const main_texture = main_gl.createTexture();
 
@@ -319,15 +311,9 @@ function init_and_draw(model) {
   bindTextureToProgram(main_gl, main_texture, imageData); 
 
   main_gl.bindTexture(main_gl.TEXTURE_2D, main_texture);
-  const feedback_gl = feedback_canvas.getContext("webgl2", {preserveDrawingBuffer: true});
-  const feedback_texture = feedback_gl.createTexture();
-  bindTextureToProgram(feedback_gl, feedback_texture, imageData);     
-  feedback_gl.bindTexture(feedback_gl.TEXTURE_2D, feedback_texture);
   const mips = isPowerOf2(texture_canvas.width) && isPowerOf2(texture_canvas.height);
   const main_shader_program = build_program(main_gl, model, mips,
     VS_SOURCE, FS_SOURCE);
-  const feedback_shader_program = build_program(feedback_gl, model, mips,
-      VS_SOURCE, FS_SOURCE2);
     
 
   const x_axis = [1,0,0];
@@ -335,14 +321,9 @@ function init_and_draw(model) {
   const z_axis = [0,0,1];
 
   const main_rotator_unifom = main_gl.getUniformLocation(main_shader_program, 'rotator');
-  const feedback_rotator_unifom = feedback_gl.getUniformLocation(feedback_shader_program, 'rotator');
-  const main_selection_uniform = main_gl.getUniformLocation(main_shader_program, "selection");
-  const feedback_selection_uniform = feedback_gl.getUniformLocation(feedback_shader_program, "selection");
   var main_projector_location = main_gl.getUniformLocation(main_shader_program, "projector");
-  var feedback_projector_location = feedback_gl.getUniformLocation(feedback_shader_program, "projector");
   
   main_gl.uniformMatrix4fv(main_projector_location, false, projectionMatrix);
-  feedback_gl.uniformMatrix4fv(feedback_projector_location, false, projectionMatrix);
   var pen_radius = 5
   var pen_color = "red"
 
@@ -372,170 +353,30 @@ function init_and_draw(model) {
   })
 
   texture_context.fillStyle = "white";
-  texture_context.fillRect(0,0,300,300);
+  texture_context.fillRect(0,0,texture_canvas.width,texture_canvas.height);
   texture_context.fill()
   const frame_texture = function() {
     texture_context.lineWidth = 3;
     texture_context.fillStyle = "white";
     texture_context.beginPath();  
-    texture_context.moveTo(300,0);
-    texture_context.lineTo(300,300);
-    texture_context.lineTo(0,300);
-    texture_context.lineTo(300,0);
+    texture_context.moveTo(texture_canvas.width, 0);
+    texture_context.lineTo(texture_canvas.width, texture_canvas.height);
+    texture_context.lineTo(0, texture_canvas.height);
+    texture_context.lineTo(texture_canvas.width, 0);
     texture_context.fill();      
 
     texture_context.strokeStyle = "blue";
     texture_context.beginPath();  
-    texture_context.moveTo(300,0);
-    texture_context.lineTo(0,300);
-    texture_context.lineTo(0,0);
-    texture_context.lineTo(300,0);
+    texture_context.moveTo(texture_canvas.width, 0);
+    texture_context.lineTo(0, texture_canvas.height);
+    texture_context.lineTo(0, 0);
+    texture_context.lineTo(texture_canvas.width, 0);
     texture_context.stroke();      
   }
   frame_texture()
   
-  const canvas_left = main_canvas.getBoundingClientRect().left;
-  const canvas_top = main_canvas.getBoundingClientRect().top;
-  let sx = null;
-  let sy = null;
-  let M = null;
-  let V0 = null;
-  let selection_changed = false
-  const reselect = () => {    
-    const selection_color = new Uint8Array(4); // Assuming RGBA format
-    feedback_gl.readPixels(sx, sy, 1, 1, 
-    feedback_gl.RGBA, feedback_gl.UNSIGNED_BYTE, selection_color);
-    document.getElementById('selection').innerHTML = selection;
-    main_gl.uniform1f(main_selection_uniform, selection);
-    new_selection = selection_color[0];    
-    if (new_selection != selection) {
-      selection_changed = true;
-      selection = new_selection;
-      const n = selection;
-      const vs = model.vertices;
-      console.log(n);
-      if (n > -1) {
-        const origin_vec3 = glMatrix.vec4.fromValues(
-         vs[n*9+3],
-          vs[n*9+4],
-          vs[n*9+5],
-          1
-        );
-        const projected_vec3 = glMatrix.vec4.create();
-        glMatrix.vec4.transformMat4(projected_vec3, origin_vec3, projectionMatrix);
-        // const projected_vec3 = glMatrix.vec3.create();
-        // glMatrix.vec4.transformMat4(projected_vec3, view_vec3, projectionMatrix);
-        overlay_context.moveTo(0,0);
-          const origin_mat4 = glMatrix.mat4.fromValues(
-             vs[n*9+0],
-             vs[n*9+1],
-             vs[n*9+2],
-             1,
-             vs[n*9+3],
-             vs[n*9+4],
-             vs[n*9+5],
-             1,
-             vs[n*9+6],
-             vs[n*9+7],
-             vs[n*9+8],
-             1
-          );
-          const projected_mat4 = glMatrix.mat4.create();
-          glMatrix.mat4.multiply(projected_mat4, projectionMatrix, origin_mat4);
-          overlay_context.clearRect(0, 0, 300,300);
-          overlay_context.strokeStyle = colors[n % colors.length];
-          overlay_context.beginPath();
-          T = []; //projected_triangle_vertices
-          overlay_context.moveTo(0,0);
-          for (i = 0; i < 4; ++i) {
-            const m = i % 3;
-            const cx = projected_mat4[m*4+0] / projected_mat4[m*4+3];
-            const cy = projected_mat4[m*4+1] / projected_mat4[m*4+3];
-            // if (false && i == 0) {
-            //   overlay_context.moveTo(
-            //     cx*150+150,150-150*cy);
-            // } else {
-            //   overlay_context.lineTo(
-            //     cx*150+150,150-150*cy); 
-            // }
-            T.push(cx*150+150);
-            T.push(150-150*cy);
-          }
-          overlay_context.stroke();
-      }
-      V0 = glMatrix.vec2.fromValues(T[0], T[1]);
-      M = glMatrix.mat2.fromValues(
-
-        T[4] - T[0], // second column maps to [1, 0]
-        T[5] - T[1], //
-        T[2] - T[0], // first column maps to [0, 1]
-        T[3] - T[1]
-      );
-      // Invert the matrix
-      if (null == glMatrix.mat2.invert(
-        M,
-        M
-      )) {
-        console.error('null projection')
-        return;
-      }
-    }
-    const dV = glMatrix.vec2.fromValues(
-      sx - V0[0], (300 - sy) - V0[1]
-    )
-    glMatrix.vec2.transformMat2(dV, dV, M);
-if (selection_changed)    {
-  // texture_context.moveTo(dV[0]*300,
-  //       dV[1]*300); 
-      //  selection_changed = false;  
-  } else {
-    // texture_context.lineTo(dV[0]*300,
-    //   dV[1]*300);
-  }
-    //texture_context.stroke();
-  }
-  document.onmousemove = (event) => {
-    if (Math.floor(event.pageX) != event.pageX) {
-      console.log(event.pageX);
-    }
-
-  }
-  let event_reselect = (event) => {
-
-
-    if (event) {
-      sx = (event.clientX - canvas_left);
-      sy = 300 - (event.clientY - canvas_top);
-    } else {
-      sx = 100;
-      sy = 100;
-    }
-    reselect();
-
-    _draw();
-
-  }
-  // let log_selection = (event) => {
-  //   const selection_color = new Uint8Array(4); // Assuming RGBA format
-  //   feedback_gl.readPixels((event.clientX - canvas_left), 300 - (event.clientY - canvas_top), 1, 1, feedback_gl.RGBA, feedback_gl.UNSIGNED_BYTE, selection_color);
-  //   document.getElementById('selection').innerHTML = selection;
-  //   main_gl.uniform1f(main_selection_uniform, selection);
-  //   new_selection = selection_color[0];    
-  //   console.log(event, 'selection', selection, selection_color);
-  //   _draw();
-  //   selection = new_selection;
-  // }
-  main_canvas.onmousemove = event_reselect;
   const texture_canvas_left = texture_canvas.getBoundingClientRect().left;
   const texture_canvas_top = texture_canvas.getBoundingClientRect().top;
-  var has_path_started = false
-  texture_canvas.addEventListener("mousedown", (event) => {
-    has_path_started = true
-      const canvas_x = event.clientX - texture_canvas_left;
-      const canvas_y = event.clientY - texture_canvas_top;
-      texture_context.beginPath();      
-      texture_context.moveTo(canvas_x, canvas_y);  
-  });
   texture_canvas.addEventListener("mousemove", (event) => {
     const canvas_x = event.clientX - texture_canvas_left;
     const canvas_y = event.clientY - texture_canvas_top;
@@ -549,9 +390,6 @@ if (selection_changed)    {
     texture_context.fill()
     frame_texture()
   }
-  });
-  texture_canvas.addEventListener("mouseup", () => {
-    has_path_started = false;
   });
 
   const palette_canvas = document.getElementById("paletteCanvas");
@@ -578,14 +416,9 @@ if (selection_changed)    {
   })
 
   function _draw() {
-    reselect()
     const imageData = texture_context.getImageData(0, 0, texture_canvas.width, texture_canvas.height);
     bindTextureToProgram(main_gl, main_texture, imageData); 
-    bindTextureToProgram(feedback_gl, feedback_texture, imageData);     
-    feedback_gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    feedback_gl.clear(feedback_gl.COLOR_BUFFER_BIT | 
-                      feedback_gl.DEPTH_BUFFER_BIT |
-                      feedback_gl.STENCIL_BUFFER_BIT);
+    
     let rotation_matrix_4x4 = glMatrix.mat4.create();
     //glMatrix.mat4.rotate(rotation_matrix_4x4, rotation_matrix_4x4, alpha, y_axis);
 
@@ -595,13 +428,9 @@ if (selection_changed)    {
     glMatrix.mat3.fromMat4(rotationMatrix3x3, rotation_matrix_4x4);
 
     main_gl.uniformMatrix3fv(main_rotator_unifom, false, rotationMatrix3x3);
-    feedback_gl.uniformMatrix3fv(feedback_rotator_unifom, false, rotationMatrix3x3);
     main_gl.useProgram(main_shader_program);
     main_gl.drawArrays(main_gl.TRIANGLES, 0, 
       model.vertices.length / 3);
-    feedback_gl.useProgram(feedback_shader_program);
-    feedback_gl.drawArrays(feedback_gl.TRIANGLES, 0, 
-      model.vertices.length / 3);    
   }
 };
 function locate_url_for_name(model_name) {
