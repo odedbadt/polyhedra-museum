@@ -382,7 +382,6 @@ function init_and_draw(model) {
   if (event.buttons) {
     texture_context.strokeStyle = pen_color;
     texture_context.lineWidth = pen_radius;
-    texture_context.line_cap = 'round'; 
     texture_context.fillStyle = pen_color;
     texture_context.beginPath();      
     texture_context.ellipse(canvas_x,canvas_y, pen_radius, pen_radius, 0, 0, Math.PI*2)
@@ -390,13 +389,53 @@ function init_and_draw(model) {
     frame_texture()
   }
   });
-
+  function copyTouch({ identifier, pageX, pageY }) {
+    return { identifier, pageX, pageY };
+  }
+  function ongoingTouchIndexById(idToFind) {
+    for (let i = 0; i < ongoingTouches.length; i++) {
+      const id = ongoingTouches[i].identifier;
+  
+      if (id === idToFind) {
+        return i;
+      }
+    }
+    return -1; // not found
+  }
+  const ongoingTouches = [];
+  texture_canvas.addEventListener("touchstart", (event) => {
+    const touches = event.changedTouches;
+    texture_context.strokeStyle = pen_color;
+    texture_context.lineWidth = pen_radius;
+    for (let i = 0; i < touches.length; i++) {
+      ongoingTouches.push(copyTouch(touches[i]));
+      const canvas_x = touches[i].pageX - texture_canvas_left;
+      const canvas_y = touches[i].pageY - texture_canvas_top;
+      texture_context.fillStyle = pen_color;
+      texture_context.beginPath();      
+      texture_context.ellipse(canvas_x,canvas_y, pen_radius, pen_radius, 0, 0, Math.PI*2)
+      texture_context.fill();
+    }
+  });
+  texture_canvas.addEventListener("touchmove", (event) => {
+    const touches = event.changedTouches;
+    texture_context.strokeStyle = pen_color;
+    texture_context.lineWidth = pen_radius;
+    for (let i = 0; i < touches.length; i++) {
+      const canvas_x = touches[i].pageX - texture_canvas_left;
+      const canvas_y = touches[i].pageY - texture_canvas_top;
+      texture_context.fillStyle = pen_color;
+      texture_context.beginPath();      
+      texture_context.ellipse(canvas_x,canvas_y, pen_radius, pen_radius, 0, 0, Math.PI*2)
+      texture_context.fill();
+    }
+  });
   const palette_canvas = document.getElementById("paletteCanvas");
   const palette_context = palette_canvas.getContext('2d');
   palette_canvas.onclick = (event) => {
     const color = palette_context.getImageData(event.offsetX, event.offsetY, 1, 1).data; 
     pen_color = `rgb(${color[0]},${color[1]},${color[2]})`;
-    console.log(pen_color);
+    draw_pen_selector()
   }
   var is_spinning = true;
   var alpha = 0;
