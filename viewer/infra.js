@@ -27,7 +27,7 @@ void main(void) {
   oVertexColor = aVertexColor;
   vTextureCoord = aTextureCoord;
   vectorIndex = floor(float(gl_VertexID)/3.0);
-  fBrightness = (0.5 +1.8*dot(normalize(normal_after_rotation), normalize(lightDirection))*0.2);
+  fBrightness = (2.0 +2.0*dot(normalize(normal_after_rotation), normalize(lightDirection)));
 }
 `
 const FS_SOURCE = `#version 300 es
@@ -43,7 +43,7 @@ uniform sampler2D uTexture;
 void main(void) {
   float fVectorIndex = min(float(vectorIndex),256.0)/256.0;
 
-    fragColor = fBrightness * texture(uTexture, vTextureCoord)* oVertexColor;
+    fragColor = fBrightness * texture(uTexture, vTextureCoord) * vec4(0.5,0.5,0.5,1.0);
   
 }
 `
@@ -193,6 +193,8 @@ function build_shaders(gl, fSource, vsSource) {
   const fragmentShader = compile_fragment_shader(gl, vsSource);
   gl.disable(gl.CULL_FACE)
   gl.enable(gl.DEPTH_TEST);
+
+
   return link_shaders(gl, vertexShader, fragmentShader);
 
   // Fragment shader source code
@@ -325,20 +327,26 @@ function init_and_draw(model) {
   
   main_gl.uniformMatrix4fv(main_projector_location, false, projectionMatrix);
   var pen_radius = 5
-  var pen_color = "red"
+  var pen_color = "black"
 
   init_palette();
   const draw_pen_selector = () => {
+    pen_context.clearColor='black'
     pen_context.clearRect(0,0,pen_canvas.width,pen_canvas.height)
     pen_context.fillStyle=pen_color
+    pen_context.strokeStyle='white'
     pen_context.beginPath()
     pen_context.moveTo(100,0)
     pen_context.lineTo(100,250)
     pen_context.lineTo(50,250)
     pen_context.lineTo(100,0)
     pen_context.fill()
-    pen_context.ellipse(pen_radius+100, pen_radius*10, pen_radius, pen_radius, 0, 0, Math.PI*2)
+    pen_context.stroke()
+    pen_context.beginPath()
+    
+    pen_context.ellipse(100-pen_radius, pen_radius*10, pen_radius, pen_radius, 0, 0, Math.PI*2)
     pen_context.fill()
+    pen_context.stroke()
 }
   draw_pen_selector()
   pen_canvas.addEventListener("mousemove", (event) => {
@@ -356,7 +364,7 @@ function init_and_draw(model) {
   texture_context.fill()
   const frame_texture = function() {
     texture_context.lineWidth = 3;
-    texture_context.fillStyle = "white";
+    texture_context.fillStyle = "black";
     texture_context.beginPath();  
     texture_context.moveTo(texture_canvas.width, 0);
     texture_context.lineTo(texture_canvas.width, texture_canvas.height);
@@ -387,6 +395,8 @@ function init_and_draw(model) {
     texture_context.ellipse(canvas_x,canvas_y, pen_radius, pen_radius, 0, 0, Math.PI*2)
     texture_context.fill()
     frame_texture()
+    _draw();
+
   }
   });
   function copyTouch({ identifier, pageX, pageY }) {
@@ -458,15 +468,19 @@ function init_and_draw(model) {
     bindTextureToProgram(main_gl, main_texture, imageData); 
     
     let rotation_matrix_4x4 = glMatrix.mat4.create();
-    //glMatrix.mat4.rotate(rotation_matrix_4x4, rotation_matrix_4x4, alpha, y_axis);
+    glMatrix.mat4.rotate(rotation_matrix_4x4, rotation_matrix_4x4, alpha, y_axis);
 
-    //glMatrix.mat4.rotate(rotation_matrix_4x4, rotation_matrix_4x4, Math.PI/3, x_axis);
+    glMatrix.mat4.rotate(rotation_matrix_4x4, rotation_matrix_4x4, Math.PI/3, x_axis);
 
     let rotationMatrix3x3 = glMatrix.mat3.create();
     glMatrix.mat3.fromMat4(rotationMatrix3x3, rotation_matrix_4x4);
 
     main_gl.uniformMatrix3fv(main_rotator_unifom, false, rotationMatrix3x3);
     main_gl.useProgram(main_shader_program);
+    main_gl.clearColor(0,0,0, 1);
+    main_gl.clear(main_gl.COLOR_BUFFER_BIT | 
+      main_gl.DEPTH_BUFFER_BIT |
+      main_gl.STENCIL_BUFFER_BIT);
     main_gl.drawArrays(main_gl.TRIANGLES, 0, 
       model.vertices.length / 3);
   }
