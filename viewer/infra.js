@@ -385,8 +385,8 @@ function init_and_draw(model) {
   const texture_canvas_left = texture_canvas.getBoundingClientRect().left;
   const texture_canvas_top = texture_canvas.getBoundingClientRect().top;
   texture_canvas.addEventListener("mousemove", (event) => {
-    const canvas_x = event.clientX - texture_canvas_left;
-    const canvas_y = event.clientY - texture_canvas_top;
+  const canvas_x = event.offsetX// - texture_canvas_left;
+  const canvas_y = event.offsetY// - texture_canvas_top;
   if (event.buttons) {
     texture_context.strokeStyle = pen_color;
     texture_context.lineWidth = pen_radius;
