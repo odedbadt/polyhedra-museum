@@ -299,7 +299,7 @@ function init_and_draw(model) {
   var viewMatrix = glMatrix.mat4.create();
   glMatrix.mat4.lookAt(viewMatrix, [0,0,6], [0,0,0], [0,1,0]);
   var projectionMatrix = glMatrix.mat4.create();
-  glMatrix.mat4.perspective(projectionMatrix, Math.PI / 4, 1, 1, 10.0);
+  glMatrix.mat4.perspective(projectionMatrix, Math.PI * 0.15, 1, 1, 10.0);
   glMatrix.mat4.multiply(projectionMatrix, projectionMatrix, viewMatrix)
   const texture_canvas = document.getElementById("textureCanvas");  
   const texture_context = texture_canvas.getContext('2d', { willReadFrequently: true });
