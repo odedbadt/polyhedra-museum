@@ -1,0 +1,92 @@
+<!doctype html>
+<!--
+ Copyright 2021 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<html>
+<head>
+  <title>Models</title>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  
+</head>
+<body>
+  <h1> Models</h1>
+  <select name="Models" id="model-select">
+    <option>Please select model</option>
+    {% for model in models %}
+    <option value="{{ model }}">{{ model }}</option>
+
+    {% endfor %}
+  </select>
+  <script>
+    const select = document.getElementById('model-select')
+    console.log(select);
+    select.addEventListener('change' ,(event) => {
+      console.log(event);
+
+              
+          ignite(select.value);
+
+    });
+    </script>
+  <div id="webgldiv">
+    <canvas id="mainCanvas" width="600" height="600"></canvas>
+    <canvas id="textureCanvas" width="4 00" height="400"></canvas>
+    <canvas id="paletteCanvas"  width="100" height="400"></canvas>
+    <canvas id="penCanvas"  width="200" height="250"></canvas>
+
+  </div>
+
+</body>
+</html>
+
+<html lang="en">
+
+<head>
+  <script src="{{ url_for('static', filename='gl-matrix-min.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='infra.js') }}" defer></script>
+  <script>
+    
+    //window.onload = (event) => {ignite('/symmetry/models/random_colored_octa.json')};
+    
+    //window.onload = (event) => {ignite('/symmetry/models/dbg.json')};
+
+
+
+  </script>
+  <style>
+    body {
+      background-color: black;     
+    }
+    #textureCanvas {
+      cursor: crosshair;
+      background-color: black;
+
+    }
+    #mainCanvas {
+    cursor: crosshair;
+    }
+    #penCanvas {
+      background-color: black;
+
+    }
+  </style>
+
+
+</head>
+
+<body>
+
+</body>
