@@ -6,4 +6,7 @@ https://polyhedra-museum.de.r.appspot.com/
 
 enjoy
 
-more explanations soon, more shapes also ... stay tuned
+More explanations soon... 
+More shapes also ... 
+Does not include generating code (might come soon)
+stay tuned
