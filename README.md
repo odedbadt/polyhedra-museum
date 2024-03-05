@@ -7,6 +7,8 @@ https://polyhedra-museum.de.r.appspot.com/
 enjoy
 
 More explanations soon... 
+
 More shapes also ... 
+
 Does not include generating code (might come soon)
 stay tuned
