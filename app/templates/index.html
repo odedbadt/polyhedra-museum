@@ -17,12 +17,12 @@
 
 <html>
 <head>
-  <title>Models</title>
+  <title>Museum of polyhedra</title>
   <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   
 </head>
 <body>
-  <h1> Models</h1>
+  <h2> Select model here</h2>
   <select name="Models" id="model-select">
     <option>Please select model</option>
     {% for model in models %}
@@ -46,6 +46,7 @@
     <td id="main">
       <canvas id="mainCanvas" width="600" height="600"></canvas>
       <h2>See shape here</h2>
+      <p>click to play/pause rotation</p>
     </td>
     <td id="main">
     <canvas id="textureCanvas" width="400" height="400"></canvas>
@@ -93,7 +94,11 @@
       background-color: black;
 
     }
+    h2 {
+      margin: 3px
+    }
     p {
+      margin: 3px
     }
   </style>
 
