@@ -495,7 +495,7 @@ function locate_url_for_name(model_name) {
   return '/static/models/' + model_name
 }
 function ignite(model_name) {
-  if (window.interval_id) {
+  if (window.interval_id != undefined) {
     window.clearInterval(window.interval_id);
   }
   load_model(locate_url_for_name(model_name), (model) => init_and_draw(model));
