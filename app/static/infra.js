@@ -27,7 +27,7 @@ void main(void) {
   oVertexColor = aVertexColor;
   vTextureCoord = aTextureCoord;
   vectorIndex = floor(float(gl_VertexID)/3.0);
-  fBrightness = 0.5+0.5*dot(normalize(normal_after_rotation), 
+  fBrightness = 0.7+0.3*dot(normalize(normal_after_rotation), 
                             normalize(lightDirection));
 }
 `
