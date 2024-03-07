@@ -35,7 +35,7 @@
     console.log(select);
     select.addEventListener('change' ,(event) => {
       console.log(event);
-
+          document.getElementById('shape-name').innerHTML = select.value.replace('.json','');
               
           ignite(select.value);
 
@@ -44,6 +44,7 @@
   <table id="webgldiv">
     <tr>
     <td id="main">
+      <h2 id="shape-name">See shape here</h2>
       <canvas id="mainCanvas" width="600" height="600"></canvas>
       <h2>See shape here</h2>
       <p>click to play/pause rotation</p>

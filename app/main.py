@@ -9,7 +9,7 @@ app = Flask(__name__)
 def root():
     # For the sake of example, use static information to inflate the template.
     # This will be replaced with real information in later steps.
-    models = [s.split('/')[-1] for s in glob('static/models/*.json')]
+    models = [s.split('/')[-1].replace('.json', '') for s in glob('static/models/*.json')]
     print(models)
     return render_template("index.html", models=models)
 

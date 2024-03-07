@@ -462,7 +462,8 @@ function init_and_draw(model) {
   main_canvas.addEventListener("click", (event) => {
     is_spinning = !is_spinning;
     if (is_spinning) {
-      interval_id = setInterval(_spin_and_draw, 100)
+      interval_id = setInterval(_spin_and_draw, 100);
+      window.interval_id = interval_id
     } else if (interval_id) {
       clearInterval(interval_id);
     }
@@ -492,11 +493,12 @@ function init_and_draw(model) {
 };
 function locate_url_for_name(model_name) {
   console.log(model_name)
-  return '/static/models/' + model_name
+  return '/static/models/' + model_name +'.json'
 }
 function ignite(model_name) {
   if (window.interval_id) {
     window.clearInterval(window.interval_id);
   }
-  load_model(locate_url_for_name(model_name), (model) => init_and_draw(model));
+    load_model(locate_url_for_name(model_name), 
+      (model) => init_and_draw(model));
 };
