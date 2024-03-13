@@ -76,7 +76,6 @@ void main(void) {
 function isPowerOf2(value) {
   return (value & (value - 1)) === 0;
 }
-colors = ["red", "blue", "green"]
 function load_model(model_url, callback) {
   const xhr = new XMLHttpRequest();
 
@@ -283,7 +282,7 @@ function bindTextureToProgram(gl, texture, imageData) {
   return texture;
 }
 
-class Renderer {
+export class Renderer {
   constructor(model, is_spinning, pen_color, pen_radius) {
     this.model = model;
     this.is_spinning = is_spinning || false;
@@ -474,23 +473,4 @@ class Renderer {
     this.draw_model();
   }
 }
-function locate_url_for_name(model_name) {
-  console.log(model_name)
 
-  return '/static/models/' + model_name + '.json'
-}
-function ignite(model_name) {
-
-  if (window.interval_id) {
-    window.clearInterval(window.interval_id);
-  }
-  load_model(locate_url_for_name(model_name),
-    (model) => {
-      if (window.renderer) {
-        window.renderer.model = model
-      } else {
-        window.renderer = new Renderer(model)
-        window.renderer.init_and_draw()
-      }
-    })
-};

@@ -26,19 +26,10 @@
   <select name="Models" id="model-select">
     <option>Please select model</option>
     {% for model in models %}
-    <option value="{{ model }}">{{ model }}</option>
+    <option class="select-option" value="{{ model }}">{{ model }}</option>
 
     {% endfor %}
-  </select>
-  <script>
-    const select = document.getElementById('model-select')
-    select.addEventListener('change' ,(event) => {
-          document.getElementById('shape-name').innerHTML = select.value.replace('.json','');
-              
-          ignite(select.value);
-
-    });
-    </script>
+</select>
   <table id="webgldiv">
     <tr>
     <td id="main">
@@ -67,12 +58,10 @@
 
 <head>
   <script src="{{ url_for('static', filename='gl-matrix-min.min.js') }}" defer></script>
-  <script src="{{ url_for('static', filename='renderer.js') }}" defer></script>
+  <script type="module" src="{{ url_for('static', filename='runner.js') }}" defer></script>
   <script>
     
-    window.onload = (event) => {
-      ignite('{{ first_model }}')
-    }
+    
 
 
 
