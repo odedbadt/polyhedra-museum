@@ -76,26 +76,6 @@ void main(void) {
 function isPowerOf2(value) {
   return (value & (value - 1)) === 0;
 }
-function load_model(model_url, callback) {
-  const xhr = new XMLHttpRequest();
-
-  // Configure it: GET-request to the URL /example/data
-  xhr.open('GET', model_url + '#' + Date.now(), true);
-
-  // Setup a function to handle the response
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState == 4 && xhr.status == 200) {
-      // Parse the JSON response
-      var model = JSON.parse(xhr.responseText);
-      // Log or use the response data
-      console.log(model);
-      callback(model);
-    }
-  };
-
-  // Send the request
-  xhr.send();
-}
 
 function load_image(image_url, callback) {
   // Load an image and use it as a texture
@@ -292,7 +272,6 @@ export class Renderer {
   }
   set_model(model) {    
     this.model = model;
-    bind_data_to_shaders(main_gl, this.model, this.shaderProgram)
     this.draw_model();
     
   }
