@@ -457,12 +457,11 @@ function init_and_draw(model) {
     }
     _draw();
   }
-  var interval_id = setInterval(_spin_and_draw, 100)
   window.interval_id = interval_id;
   main_canvas.addEventListener("click", (event) => {
     is_spinning = !is_spinning;
     if (is_spinning) {
-      interval_id = setInterval(_spin_and_draw, 100);
+      interval_id = setInterval(this.spin_and_draw.bind(this), 100);
       window.interval_id = interval_id
     } else if (interval_id) {
       clearInterval(interval_id);

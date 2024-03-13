@@ -32,9 +32,7 @@
   </select>
   <script>
     const select = document.getElementById('model-select')
-    console.log(select);
     select.addEventListener('change' ,(event) => {
-      console.log(event);
           document.getElementById('shape-name').innerHTML = select.value.replace('.json','');
               
           ignite(select.value);
@@ -69,12 +67,12 @@
 
 <head>
   <script src="{{ url_for('static', filename='gl-matrix-min.min.js') }}" defer></script>
-  <script src="{{ url_for('static', filename='infra.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='renderer.js') }}" defer></script>
   <script>
     
-    //window.onload = (event) => {ignite('/symmetry/models/random_colored_octa.json')};
-    
-    //window.onload = (event) => {ignite('/symmetry/models/dbg.json')};
+    window.onload = (event) => {
+      ignite('{{ first_model }}')
+    }
 
 
 

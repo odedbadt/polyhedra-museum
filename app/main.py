@@ -11,7 +11,8 @@ def root():
     # This will be replaced with real information in later steps.
     models = [s.split('/')[-1].replace('.json', '') for s in glob('static/models/*.json')]
     print(models)
-    return render_template("index.html", models=models)
+    models = [s.split('/')[-1].replace('.json', '') for s in glob('static/models/*.json')]
+    return render_template("index.html", models=models, first_model=models[0])
 
 
 if __name__ == "__main__":
