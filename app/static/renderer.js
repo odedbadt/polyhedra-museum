@@ -186,7 +186,6 @@ function build_shaders(gl, fSource, vsSource) {
 }
 function bind_data_to_shaders(gl, model, shaderProgram) {
   const vertexBuffer = create_vertex_buffer(gl, model.vertices);
-  const colorBuffer = create_color_buffer(gl, model.colors)
   const normalBuffer = create_normal_buffer(gl, model.normals)
   const textureCoordBuffer = create_texture_buffer(gl, model.texture)
 
@@ -197,15 +196,17 @@ function bind_data_to_shaders(gl, model, shaderProgram) {
   gl.enableVertexAttribArray(vertexPosition);
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
   gl.vertexAttribPointer(vertexPosition, 3, gl.FLOAT, false, 0, 0);
-  const vertexColorPosition = gl.getAttribLocation(
-    shaderProgram, "aVertexColor");
+  if (model.colors) {
+    const colorBuffer = create_color_buffer(gl, model.colors)
+    const vertexColorPosition = gl.getAttribLocation(
+      shaderProgram, "aVertexColor");
 
-  console.log(vertexPosition, vertexColorPosition, gl.getError());
+    console.log(vertexPosition, vertexColorPosition, gl.getError());
 
-  gl.enableVertexAttribArray(vertexColorPosition);
-  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-  gl.vertexAttribPointer(vertexColorPosition, 4, gl.FLOAT, false, 0, 0);
-
+    gl.enableVertexAttribArray(vertexColorPosition);
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.vertexAttribPointer(vertexColorPosition, 4, gl.FLOAT, false, 0, 0);
+  }
   if (normalBuffer) {
     const normalPosition = gl.getAttribLocation(
       shaderProgram,
