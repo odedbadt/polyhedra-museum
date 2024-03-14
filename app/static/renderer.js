@@ -296,7 +296,7 @@ export class Renderer {
 
     this.init_palette();
     this.init_texture_sketcher();
-    this.draw_pen_selector();
+    this.init_pen_selector();
     this.draw_model()
     main_canvas.addEventListener("click", (event) => {
       this.is_spinning = !this.is_spinning;
@@ -342,12 +342,17 @@ export class Renderer {
     pen_context.ellipse(100 - this.pen_radius, this.pen_radius * 10, this.pen_radius, this.pen_radius, 0, 0, Math.PI * 2)
     pen_context.fill()
     pen_context.stroke()
+  }
+  init_pen_selector() {
+    this.draw_pen_selector();
+    const pen_canvas = document.getElementById("penCanvas");
     pen_canvas.addEventListener("mousemove", (event) => {
       if (event.buttons) {
-        const pen_canvas_x = event.clientY - pen_canvas.getBoundingClientRect().top;
-        draw_pen_selector()
-        pen_context.fillStyle = this.pen_color
+        const pen_canvas_y = event.clientY - pen_canvas.getBoundingClientRect().top;
+        this.pen_radius = pen_canvas_y/10
+        this.draw_pen_selector()
       }
+      console.log('B');
     });
   }
   init_texture_sketcher() {
