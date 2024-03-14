@@ -19,18 +19,29 @@
 <head>
   <title>Museum of polyhedra</title>
   <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  
+  <script src="{{ url_for('static', filename='gl-matrix-min.min.js') }}" defer></script>
+  <script type="module" src="{{ url_for('static', filename='runner.js') }}" defer></script>
+
 </head>
 <body>
   <h2> Select model here</h2>
-  <select name="Models" id="model-select">
-    <option>Please select model</option>
-    {% for model in models %}
-    <option class="select-option" value="{{ model }}">{{ model }}</option>
-
-    {% endfor %}
-</select>
+  
   <table id="webgldiv">
+    <tr>
+      <td></td>
+      <td>
+        <select name="Models" id="model-select">
+          <option>Please select model</option>
+          {% for model in models %}
+          <option class="select-option" value="{{ model }}">{{ model }}</option>
+      
+          {% endfor %}
+      </select>
+      <td></td>
+
+      </td>
+
+    </tr>
     <tr>
     <td id="main">
       <h2 id="shape-name">See shape here</h2>
@@ -54,45 +65,3 @@
 </body>
 </html>
 
-<html lang="en">
-
-<head>
-  <script src="{{ url_for('static', filename='gl-matrix-min.min.js') }}" defer></script>
-  <script type="module" src="{{ url_for('static', filename='runner.js') }}" defer></script>
-  <script>
-    
-    
-
-
-
-  </script>
-  <style>
-    body {
-      background-color: black;     
-    }
-    #textureCanvas {
-      cursor: crosshair;
-      background-color: black;
-
-    }
-    #mainCanvas {
-    cursor: crosshair;
-    }
-    #penCanvas {
-      background-color: black;
-
-    }
-    h2 {
-      margin: 3px
-    }
-    p {
-      margin: 3px
-    }
-  </style>
-
-
-</head>
-
-<body>
-
-</body>

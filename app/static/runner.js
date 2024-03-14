@@ -21,9 +21,8 @@ function load_model(model_url, callback) {
 }
 
 function locate_url_for_name(model_name) {
-  console.log(model_name)
 
-  return '/static/models/' + model_name + '.json'
+  return `/model?model_name=${model_name}`
 }
 function load_and_set_model(model_name) {
 
@@ -43,7 +42,7 @@ function load_and_set_model(model_name) {
 
 function setup() {
   const select = document.getElementById('model-select');
-  const first_model = document.getElementsByClassName('select-option')[0].value;
+  const first_model = window.first_model || document.getElementsByClassName('select-option')[0].value;
   select.addEventListener('change' ,(event) => {
         document.getElementById('shape-name').innerHTML = select.value.replace('.json','');
 
