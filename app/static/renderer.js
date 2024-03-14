@@ -186,7 +186,6 @@ function build_shaders(gl, fSource, vsSource) {
 }
 function bind_data_to_shaders(gl, model, shaderProgram) {
   const vertexBuffer = create_vertex_buffer(gl, model.vertices);
-  const colorBuffer = create_color_buffer(gl, model.colors)
   const normalBuffer = create_normal_buffer(gl, model.normals)
   const textureCoordBuffer = create_texture_buffer(gl, model.texture)
 
@@ -197,15 +196,17 @@ function bind_data_to_shaders(gl, model, shaderProgram) {
   gl.enableVertexAttribArray(vertexPosition);
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
   gl.vertexAttribPointer(vertexPosition, 3, gl.FLOAT, false, 0, 0);
-  const vertexColorPosition = gl.getAttribLocation(
-    shaderProgram, "aVertexColor");
+  if (model.colors) {
+    const colorBuffer = create_color_buffer(gl, model.colors)
+    const vertexColorPosition = gl.getAttribLocation(
+      shaderProgram, "aVertexColor");
 
-  console.log(vertexPosition, vertexColorPosition, gl.getError());
+    console.log(vertexPosition, vertexColorPosition, gl.getError());
 
-  gl.enableVertexAttribArray(vertexColorPosition);
-  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-  gl.vertexAttribPointer(vertexColorPosition, 4, gl.FLOAT, false, 0, 0);
-
+    gl.enableVertexAttribArray(vertexColorPosition);
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.vertexAttribPointer(vertexColorPosition, 4, gl.FLOAT, false, 0, 0);
+  }
   if (normalBuffer) {
     const normalPosition = gl.getAttribLocation(
       shaderProgram,
@@ -272,8 +273,7 @@ export class Renderer {
   }
   set_model(model) {    
     this.model = model;
-    this.draw_model();
-    
+    this.draw_model();    
   }
   init_and_draw() {
     const texture_canvas = document.getElementById("textureCanvas");
@@ -352,7 +352,6 @@ export class Renderer {
         this.pen_radius = pen_canvas_y/10
         this.draw_pen_selector()
       }
-      console.log('B');
     });
   }
   init_texture_sketcher() {
@@ -378,22 +377,29 @@ export class Renderer {
       texture_context.lineTo(texture_canvas.width, 0);
       texture_context.stroke();
     }
-    frame_texture()
+    //frame_texture()
   
     const texture_canvas_left = texture_canvas.getBoundingClientRect().left;
     const texture_canvas_top = texture_canvas.getBoundingClientRect().top;
+    texture_canvas.addEventListener("mousedown", (event) => {
+      const canvas_x = event.clientX - texture_canvas_left;
+      const canvas_y = event.clientY - texture_canvas_top;
+      texture_context.beginPath();
+      texture_context.moveTo(canvas_x, canvas_y);
+    });
     texture_canvas.addEventListener("mousemove", (event) => {
       const canvas_x = event.clientX - texture_canvas_left;
       const canvas_y = event.clientY - texture_canvas_top;
       if (event.buttons) {
-        texture_context.fillStyle = this.pen_color;
-        console.log(this.pen_color)
+        texture_context.strokeStyle = this.pen_color;
         texture_context.lineWidth = this.pen_radius;
-          
-        texture_context.beginPath();
-        texture_context.ellipse(canvas_x, canvas_y, this.pen_radius, this.pen_radius, 0, 0, Math.PI * 2)
-        texture_context.fill();
-        frame_texture();
+        texture_context.lineCap = 'round';
+        texture_context.lineTo(canvas_x, canvas_y);
+        texture_context.stroke();
+        // texture_context.beginPath();
+        // texture_context.ellipse(canvas_x, canvas_y, this.pen_radius, this.pen_radius, 0, 0, Math.PI * 2)
+        // texture_context.fill();
+        //frame_texture();
         this.draw_model();
   
       }

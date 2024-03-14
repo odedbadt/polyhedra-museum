@@ -13,9 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
  body {
-    font-family: "helvetica", sans-serif;
-    text-align: center;
-    color: white;
-  }
+   background-color: black;     
+ }
+ #textureCanvas {
+   cursor: crosshair;
+   background-color: black;
+
+ }
+ #mainCanvas {
+ cursor: crosshair;
+ }
+ #penCanvas {
+   background-color: black;
+
+ }
+ h2 {
+   margin: 3px
+ }
+ p {
+   margin: 3px
+ }
