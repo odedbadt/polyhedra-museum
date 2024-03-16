@@ -45,8 +45,7 @@ uniform sampler2D uTexture;
 
 void main(void) {
   float fVectorIndex = min(float(vectorIndex),256.0)/256.0;
-  //fragColor = vec4(1.0,0.0,0.0,1.0);
-    fragColor = fBrightness * texture(uTexture, vTextureCoord) * vec4(0.5,0.5,0.5,1.0);
+    fragColor = fBrightness * texture(uTexture, vTextureCoord) * vec4(1.0,1.0,1.0,1.0);
   
 }
 `
@@ -264,12 +263,18 @@ function bindTextureToProgram(gl, texture, imageData) {
 }
 
 export class Renderer {
-  constructor(model, is_spinning, pen_color, pen_radius) {
+  constructor(model, spinning_speed, pen_color, pen_radius) {
     this.model = model;
-    this.is_spinning = is_spinning || false;
+    this.spinning_speed = spinning_speed || 0;
+    this.is_spinning = this.spinning_speed && this.spinning_speed > 0;
     this.alpha = 0;
     this.pen_color = pen_color || 'black'
     this.pen_radius = pen_radius || 5
+  }
+  set_spinning_speed(spinning_speed) {
+    this.spinning_speed = spinning_speed || 0
+    this.is_spinning = this.spinning_speed > 0
+    this.spin_and_draw();
   }
   set_model(model) {    
     this.model = model;
@@ -299,13 +304,23 @@ export class Renderer {
     this.init_pen_selector();
     this.draw_model()
     main_canvas.addEventListener("click", (event) => {
+      if (this.interval_id) {
+        clearInterval(this.interval_id);
+      }
       this.is_spinning = !this.is_spinning;
       if (this.is_spinning) {
+        this.spinning_speed = 0.05
         this.interval_id = setInterval(this.spin_and_draw.bind(this), 100);
       } else if (this.interval_id) {
         clearInterval(this.interval_id);
       }
-    })
+      event.stopPropagation()
+      event.stopImmediatePropagation();
+    });
+    if (this.interval_id) {
+      clearInterval(this.interval_id);
+    }
+    this.interval_id = setInterval(this.spin_and_draw.bind(this), 100);
     
   };
   init_palette() {
@@ -338,10 +353,12 @@ export class Renderer {
     pen_context.fill()
     pen_context.stroke()
     pen_context.beginPath()
-
+    const bak_globalCompositeOperation = pen_context.globalCompositeOperation;
+    pen_context.globalCompositeOperation= "xor"
     pen_context.ellipse(100 - this.pen_radius, this.pen_radius * 10, this.pen_radius, this.pen_radius, 0, 0, Math.PI * 2)
     pen_context.fill()
     pen_context.stroke()
+    pen_context.globalCompositeOperation= bak_globalCompositeOperation
   }
   init_pen_selector() {
     this.draw_pen_selector();
@@ -457,8 +474,8 @@ export class Renderer {
       this.model.vertices.length / 3);
   };
   spin_and_draw() {
-    if (this.is_spinning) {
-      this.alpha = this.alpha + .03;
+    if (typeof(this.spinning_speed) === 'number') {
+      this.alpha = this.alpha + this.spinning_speed;
     }
     this.draw_model();
   }

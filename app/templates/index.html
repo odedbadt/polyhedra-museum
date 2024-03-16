@@ -19,22 +19,20 @@
 <head>
   <title>Museum of polyhedra</title>
   <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<<<<<<< HEAD
   <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.png') }}">
-=======
   <script src="{{ url_for('static', filename='gl-matrix-min.min.js') }}" defer></script>
   <script type="module" src="{{ url_for('static', filename='runner.js') }}" defer></script>
-
->>>>>>> gcloud
 </head>
 <body>
-  <h2> Select model here</h2>
   
   <table id="webgldiv">
     <tr>
       <td></td>
       <td>
+        <h2> Select model here</h2>
+
         <select name="Models" id="model-select">
+
           <option>Please select model</option>
           {% for model in models %}
           <option class="select-option" value="{{ model }}">{{ model }}</option>

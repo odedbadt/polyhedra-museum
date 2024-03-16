@@ -29,7 +29,9 @@
 
  }
  h2 {
-   margin: 3px
+   margin: 3px;
+   color: white;
+   font-family: monospace;
  }
  p {
    margin: 3px
