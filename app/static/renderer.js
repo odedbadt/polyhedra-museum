@@ -407,15 +407,19 @@ export class Renderer {
     texture_canvas.addEventListener("mousemove", (event) => {
       const canvas_x = event.clientX - texture_canvas_left;
       const canvas_y = event.clientY - texture_canvas_top;
+      const w = texture_canvas.width;
+      const h = texture_canvas.height;
       if (event.buttons) {
-        texture_context.strokeStyle = this.pen_color;
-        texture_context.lineWidth = this.pen_radius;
-        texture_context.lineCap = 'round';
-        texture_context.lineTo(canvas_x, canvas_y);
-        texture_context.stroke();
-        // texture_context.beginPath();
-        // texture_context.ellipse(canvas_x, canvas_y, this.pen_radius, this.pen_radius, 0, 0, Math.PI * 2)
-        // texture_context.fill();
+        texture_context.fillStyle = this.pen_color;
+        texture_context.lineWidth = 0;
+        texture_context.beginPath();
+        texture_context.ellipse(canvas_x, canvas_y, this.pen_radius, this.pen_radius, 0, 0, Math.PI * 2)
+        texture_context.fill();
+        texture_context.fillStyle = this.pen_color;
+        texture_context.lineWidth = 0;
+        texture_context.beginPath();
+        texture_context.ellipse(w - canvas_y, h - canvas_x, this.pen_radius, this.pen_radius, 0, 0, Math.PI * 2)
+        texture_context.fill();
         //frame_texture();
         this.draw_model();
   
